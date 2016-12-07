@@ -1,0 +1,293 @@
+(function ($) {
+    $(document).ready(function () {
+
+        /* Панель навигации */
+        // Описываем функцию, которая
+        function lpHeader() {
+            if ($(window).scrollTop() == 0) { // Если находимся в начале страницы
+                $('header').addClass('top'); // Добавляет класс top для панели
+            } else { // Иначе
+                $('header.top').removeClass('top'); // Удаляет его
+            }
+        }
+        // Вызываем эту функцию
+        lpHeader(); // Единожды при загрузке страницы
+        $(window).on('scroll', lpHeader); // И каждый раз при скролле
+
+        /* Плавный скролл при клике на ссылку в меню */
+        // Помещаем набор ссылок в переменную
+        var lpMenuItems = $('ul.nav li a');
+        // Для каждой ссылке в наборе
+        lpMenuItems.each(function () {
+            // Помещаем в переменные
+            var link = $(this), // Саму ссылку
+                linkHref = link.attr('href'), // Путь, на который она ссылается
+                linkTrgt = $(linkHref); // Объект, на который она ссылается
+            // Если таковой объект существует
+            if (linkTrgt.length > 0) {
+                // То добавляем обработчик на клик по ссылке
+                link.on('click', function (e) {
+                    // Отменяем переход по умолчанию
+                    e.preventDefault();
+                    // Вычисляем отступ до объекта-назначения
+                    var offset = linkTrgt.offset().top;
+                    // И плавно скроллим страницу к этой точке
+                    $('body, html').animate({
+                        scrollTop: offset - linkTrgt.attr('data-offset')
+                    }, 750);
+                });
+            }
+        });
+
+        /* Отслеживание активного экрана */
+        // Объявляем массив
+        var lpNavItems = [];
+        // Описываем функцию, которая
+        function lpSetNavItems() {
+            // Помещает в массив для каждого экрана
+            $('section').each(function () {
+                lpNavItems.push({
+                    top: $(this).offset().top, // Его отступ от начала экрана
+                    name: $(this).attr('id') // Значение ID
+                });
+            });
+        }
+        // Вызываем эту функцию
+        lpSetNavItems(); // Единожды при загрузке страницы
+        $(window).on('resize', lpSetNavItems); // И каждый раз при изменении размера окна
+
+        // Описываем функцию, которая вычисляет активный экран
+        function lpSetNavActive() {
+            // В этой переменной в конце forEach будет ID активного экрана
+            var curItem = '';
+            // Чтобы он туда попал, перебираем все экраны
+            lpNavItems.forEach(function (item) {
+                // И если положение экрана от начала страницы меньше текущего скролла
+                if ($(window).scrollTop() > item.top - 200) {
+                    curItem = item.name; // В переменную вносим ID этого экрана
+                }
+            });
+            // Далее, если href ссылки внутри активного пункта меню не совпадает с ID найденного нами активного экрана
+            // Либо активные элементы отсутствуют в меню
+            if ($('ul.nav li.active a').attr('href') != '#' + curItem || $('ul.nav li.active').length == 0) {
+                // Удаляем класс у текущего активного элемента
+                $('ul.nav li.active').removeClass('active');
+                // И добавляем класс active пункту, внутри которого лежит ссылка, у которой href совпал с ID активного экрана 
+                $('ul.nav li a[href="#' + curItem + '"]').parent().addClass('active');
+            }
+        }
+        // Вызываем эту функцию
+        lpSetNavActive(); // Единожды при загрузке страницы
+        $(window).on('scroll', lpSetNavActive); // И каждый раз при скролле
+
+        /* Слайдер */
+
+        $('.lp-slider1').owlCarousel({
+            singleItem: true,
+            navigation: true,
+            navigationText: ['<i class="fa fa-arrow-left"></i>', '<i class="fa fa-arrow-right"></i>']
+        });
+        /*--------------------DZ7---------------------------------*/
+        $('.lp-slider2').owlCarousel({
+            navigation: true,
+            navigationText: ['<i class="fa fa-arrow-left"></i>', '<i class="fa fa-arrow-right"></i>'],
+            itemsCustom: [[0, 1], [400, 3], [900, 5]],
+            afterInit: function () {
+                console.log('Инициализация');
+            },
+            afterMove: function () {
+                console.log('Переключение слайда');
+                /* console.log(this.currentItem);*/
+            },
+            afterUpdate: function () {
+                console.log('Изменение размера слайдера');
+            }
+
+        });
+
+        var go = $('#go');
+        go.click(function () {
+            var curSlide = $('#numSlide').val();
+/*            console.log(curSlide);
+*/             $('.lp-slider2').trigger('owl.goTo', +curSlide - 1);
+        });
+        /*end DZ7*/
+
+        var lp_slider3 = $('.lp-slider3');
+        var lp_slider4 = $('.lp-slider4');
+
+        lp_slider3.owlCarousel({
+            singleItem: true,
+            slideSpeed: 1000,
+            pagination: false,
+            responsiveRefreshRate: 200
+        });;
+
+        lp_slider4.owlCarousel({
+            items: 3,
+            itemsDesktop: [1199, 3],
+            itemsDesktopSmall: [979, 3],
+            itemsTablet: [768, 3],
+            itemsMobile: [479, 2],
+            pagination: false,
+            responsiveRefreshRate: 100,
+        });
+
+        lp_slider4.on("click", ".owl-item", function (e) {
+            e.preventDefault();
+            var number = $(this).index();
+            lp_slider3.trigger("owl.goTo", number);
+            lp_slider4.trigger("owl.goTo", number - 1);
+
+        });
+        
+        lp_slider3.on("mouseenter", ".owl-item", function (e) {
+            e.preventDefault();
+            var number = $(this).data("owl-item");
+            lp_slider4.trigger("owl.goTo", number - 1);
+        });
+/* Табулятор */
+  // Для каждого табулятора на странице
+  $('.lp-tabs').each(function () {
+      // Помещаем корневой div в переменную tabs 
+      var tabs = $(this),
+          tabsTitlesNames = []; // А также объявляем массив, в котором будем хранить имена вкладок     
+      // Сохраняем все имена вкладок в массив
+      tabs.find('div[data-tab-title]').each(function () {
+          tabsTitlesNames.push($(this).attr('data-tab-title'));
+      }).addClass('lp-tab');
+      // Между корневым div и его содержимым добавляем div с классом "lp-tabs-content"
+      tabs.wrapInner('<div class="lp-tabs-content"></div>');
+      // В начало корневого div добавляем div с классом "lp-tabs-titles" и списком внутри
+      tabs.prepend('<div class="lp-tabs-titles"><ul></ul></div>');
+      // Помещаем в переменные:
+      var tabsTitles = tabs.find('.lp-tabs-titles'), // Div c заголовками вкладок
+          tabsContent = tabs.find('.lp-tabs-content'), // Div с содержимым вкладок
+          tabsContentTabs = tabsContent.find('div[data-tab-title]'); // Набор вкладок
+      // Добавляем заголовки вкладок
+      tabsTitlesNames.forEach(function (value) {
+          tabsTitles.find('ul').append('<li>' + value + '</li>');
+      });
+      // Помещаем в переменную набор заголовков вкладок
+      var tabsTitlesItems = tabsTitles.find('ul li');
+      // Добавляем класс "active" первому заголовку
+      tabsTitlesItems.eq(0).addClass('active');
+      // Добавляем класс "active" первой вкладке и отображаем ее
+      tabsContentTabs.eq(0).addClass('active').show();
+      // Устанавливаем высоту div с содержимым вкладок равной высоте первой вкладки
+      tabsContent.height(tabsContent.find('.active').outerHeight());
+      // По клику на заголовке вкладки
+
+tabs.append('<div class="lp-tabs-footer"></div>');
+      tabsTitlesItems.on('click', function () {
+  
+        
+          // Проверяем, не находится ли табулятор в переходном состоянии
+          if (!tabs.hasClass('changing')) {
+              // Если нет, то добавляем класс "changing", обозначающий переходное состояние
+              tabs.addClass('changing');
+              // Помещаем в переменные:
+              var curTab = tabsContent.find('.active'), // Активную вкладку
+                  nextTab = tabsContentTabs.eq($(this).index()); // Следующую вкладку
+              // Убираем класс "active" у активного заголовка
+              tabsTitles.find('.active').removeClass('active');
+              // Добавляем класс "active" заголовку, по которому кликнули
+              $(this).addClass('active');
+              // Помещаем в переменную текущую высоту контента
+              var curHeight = curTab.outerHeight();
+              // Отображаем следующую вкладку
+              nextTab.show();
+              // Помещаем в переменную высоту контента следующей вкладки
+              var nextHeight = nextTab.outerHeight();
+              // Прячем следующую вкладку, пока никто ее не увидел
+              nextTab.hide();
+              // Если высота контента следующей вкладки больше
+              if (curHeight < nextHeight) {
+                  // То плавно увеличиваем высоту блока с контентом до нужной высоты
+                  tabsContent.animate({
+                      height: nextHeight
+                  }, 500);
+              }
+              // И параллельно прячем текщую вкладку
+              curTab.fadeOut(500, function () {
+                  // По окончании анимации
+                  // Если высота контента следующей вкладки меньше
+                  if (curHeight > nextHeight) {
+                      // То плавно уменьшаем высоту блока с контентом до нужной высоты
+                      tabsContent.animate({
+                          height: nextHeight
+                      }, 500);
+                  }
+                  // И параллельно отображаем следующую вкладку
+                  nextTab.fadeIn(500, function () {
+                      // По окончании анимации
+                      // Удаляем класс "active" у текущей (уже прошлой) вкладки
+                      curTab.removeClass('active');
+                      // Добавляем класс "active" следующей (уже текущей) вкладке
+                      nextTab.addClass('active');
+                      // Выводим табулятор из переходного состояния
+                      tabs.removeClass('changing');
+                  });
+              });
+    /*-------------------------------------- DZ8 --------------------------------------*/
+            //Добавляем в табулятор блок .lp-tabs-footer, в котором должны отображаться номер и заголовок активной вкладки
+            var f_part = $('.lp-tabs-titles .active').text();
+            var s_part = tabsTitlesNames.length;
+            var th_part =$('.lp-tabs-titles .active').index()+1;
+            var res = f_part+' '+ th_part +'/' + s_part;
+            $('.lp-tabs-footer').text('');
+            $('.lp-tabs-footer').append(res);
+           }
+      });
+      // При изменении размера окна
+      $(window).on('resize', function () {
+          // Устанавливаем высоту div с содержимым вкладок равной высоте активной вкладки
+          tabsContent.height(tabsContent.find('.active').outerHeight());
+      });
+    });
+
+    $('.lp-mfp-inline').magnificPopup({
+        type: 'inline'
+    });
+
+    $('.lp-gallery').each(function () {
+        $(this).magnificPopup({
+            delegate: 'a',
+            type: 'image',
+            gallery: {
+                enabled: true
+            }
+        });
+    });
+
+    
+/*The first homework*/
+    $('.lp-mfp-ajax').magnificPopup({
+        type: 'ajax'
+    });
+
+/*The second homework*/
+    $('.lp-mfp-iframe').magnificPopup({
+        type: 'iframe'
+    });
+
+/*The third homework*/  
+var third = $('.lp-mfp-inline-change');
+    third.click(function(){
+    $('#buttns >h2').text($(this).text());
+    })
+
+    third.magnificPopup({
+          type:'inline'
+    })
+/*The fourth homework*/
+$('.lp-mfp-gallery').each(function() { // the containers for all your galleries
+    $(this).magnificPopup({
+        delegate: 'a', // the selector for gallery item
+        type: 'iframe',
+        gallery: {
+          enabled:true
+        }
+    });})
+});
+})(jQuery);

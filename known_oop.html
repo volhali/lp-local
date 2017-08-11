@@ -1,0 +1,89 @@
+##-- // ТЕМПЛЕЙТ --##
+<tpl name=admMessagesTPL>
+
+<style>
+.table_list .off td{
+  background: #DDD;
+}
+</style>
+
+<? 
+if(isset($_SESSION["INFO_MESSAGE"])) {
+  echo '<div class="infoMessage">'.$_SESSION["INFO_MESSAGE"].'</div><br />';
+  unset($_SESSION["INFO_MESSAGE"]);
+}
+?>
+<form action="<?=$action; ?>" method="POST">
+<table id="myTable" class="table_list" width="100%">
+  
+  <thead>
+  <tr>
+    <th colspan="5"><b>Поиск</b>
+  </tr>
+  <tr>
+    <td width="1" align="center">Сообщение администраторам</td>
+    <td width="1" align="center">Филиал</td>
+    <td width="1" align="center">Право</td>
+    <td width="1" align="center">&nbsp;</td>
+    <td width="1" align="center">&nbsp;</td>
+  </tr>
+  </thead>    
+  <tbody>
+    <tr>
+      <td align="center">
+        <textarea name="textadmin"> </textarea>
+      </td>
+      <td align="center">
+        <select name="user_filial_id" style="width: 200px">
+          <option value=""></option>
+          <option value="all" <? $sel2 = P::get('user_filial_id') == 'all' ? 'selected':'';?><?=$sel2 ?>>Все филиалы</option>
+          <?foreach($FILIALS as $v): $sel1 = P::get('user_filial_id') == $v['id'] ? 'selected':'';?>
+          <option value="{$v['id'];}" <?=$sel1 ?>>{$v['fil_name'];}</option>
+          <? endforeach; ?>
+        </select>
+      </td>
+      <td align="center">
+          <select style="width: 200px" name="grant">
+            <option value=""></option>
+            <? foreach($GRANTLIST as $val): $sel = P::get('grant') == $val['grantlist_id'] ? 'selected':'';?>
+            <option value="{$val['grantlist_id'];}" <?=$sel ?>>{$val['grantlist_info'];}</option>
+            <? endforeach; ?>
+          </select>
+      </td>
+      <td align="center">
+        <input name="sendmail" type="submit" value="&nbsp;&nbsp;&nbsp;Отправить сообщение&nbsp;&nbsp;&nbsp;"></br>
+      </td>
+      <td align="center">
+        <input name="search" type="submit" value="&nbsp;&nbsp;&nbsp;Список сотрудников&nbsp;&nbsp;&nbsp;">
+      </td>
+    </tr>
+    <tr>
+      <th style="text-align: center;">Логин</th>
+      <th style="text-align: center;">Фамилия</th>
+      <th style="text-align: center;">Имя</th>
+      <th style="white-space: nowrap;">Отчество</th>
+      <th></th>
+    </tr>
+    <? foreach ($SEARCHLIST as $value): ?>
+    <tr>
+      <td style="text-align: center;">{$value["user_login"]}</td>
+      <td style="text-align: center;">{$value["user_surname"]}</td>
+      <td style="text-align: center;">{$value["user_name"]}</td>
+      <td style="text-align: center;">{$value["user_familyname"]}</td>
+      <td></td>
+    </tr>
+    <? endforeach; ?>
+    <? foreach ($LIST as $value): ?>
+    <tr>
+      <td style="text-align: center;">{$value["user_login"]}</td>
+      <td style="text-align: center;">{$value["user_surname"]}</td>
+      <td style="text-align: center;">{$value["user_name"]}</td>
+      <td style="white-space: nowrap;">{$value["user_familyname"]}</td>
+      <td></td>
+    </tr>
+    <? endforeach; ?>
+  </tbody>
+</table>
+</form>
+
+</tpl admMessagesTPL>
